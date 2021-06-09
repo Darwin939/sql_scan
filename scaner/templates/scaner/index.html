@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+  {% load static %}
+
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Roboto&display=swap"
+      rel="stylesheet"
+      type="text/css"
+    />
+
+    <title>Document</title>
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="{% static 'scaner/style.css' %}"
+    />
+  </head>
+  <body>
+    <style>
+        /* preload */
+
+.preloader {
+    display: none;
+    position: fixed;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    overflow: hidden;
+    /* фоновый цвет */
+    background: #e0e0e0;
+    z-index: 1001;
+  }
+  
+  .preloader__image {
+    position: relative;
+    top: 50%;
+    left: 50%;
+    width: 70px;
+    height: 70px;
+    margin-top: -35px;
+    margin-left: -35px;
+    text-align: center;
+    animation: preloader-rotate 2s infinite linear;
+  }
+  
+  @keyframes preloader-rotate {
+    100% {
+      transform: rotate(360deg);
+    }
+  }
+  
+  .loaded_hiding .preloader {
+    transition: 0.3s opacity;
+    opacity: 0;
+  }
+  
+  .loaded .preloader {
+    display: block;
+  }
+
+    </style>
+
+
+<div class="preloader">
+    <svg class="preloader__image" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+      <path fill="currentColor"
+        d="M304 48c0 26.51-21.49 48-48 48s-48-21.49-48-48 21.49-48 48-48 48 21.49 48 48zm-48 368c-26.51 0-48 21.49-48 48s21.49 48 48 48 48-21.49 48-48-21.49-48-48-48zm208-208c-26.51 0-48 21.49-48 48s21.49 48 48 48 48-21.49 48-48-21.49-48-48-48zM96 256c0-26.51-21.49-48-48-48S0 229.49 0 256s21.49 48 48 48 48-21.49 48-48zm12.922 99.078c-26.51 0-48 21.49-48 48s21.49 48 48 48 48-21.49 48-48c0-26.509-21.491-48-48-48zm294.156 0c-26.51 0-48 21.49-48 48s21.49 48 48 48 48-21.49 48-48c0-26.509-21.49-48-48-48zM108.922 60.922c-26.51 0-48 21.49-48 48s21.49 48 48 48 48-21.49 48-48-21.491-48-48-48z">
+      </path>
+    </svg>
+  </div>
+
+    <div class="container">
+      <div class="header">Сканер Sql уязвимостей</div>
+      <div class="description">
+        <p>
+          Внедрение SQL-кода (англ. SQL injection) — один из распространённых
+          способов взлома сайтов и программ, работающих с базами данных,
+          основанный на внедрении в запрос произвольного SQL-кода.
+        </p>
+        <p>
+          Внедрение SQL, в зависимости от типа используемой СУБД и условий
+          внедрения, может дать возможность атакующему выполнить произвольный
+          запрос к базе данных (например, прочитать содержимое любых таблиц,
+          удалить, изменить или добавить данные), получить возможность чтения
+          и/или записи локальных файлов и выполнения произвольных команд на
+          атакуемом сервере.
+        </p>
+        
+      </div>
+      <div class="scaner">
+          <div class="title">
+            Проверить сайт на SQL уязвимости
+          </div>
+          <form action="/make_analysis" method="post">
+              <input id="text_input" name="site_url" type="text" value="">
+              <input id="button" type="submit" value="Проверить" onclick="show()">
+          </form>
+      </div>
+      <div class="table_of_result">
+          <table>
+              <tr>
+                  <td>Ссылка</td> <td>Тип уязвимости</td>
+              </tr>
+              {% if vulns %}
+              {% for vul in vulns %}
+                    <tr>
+                        <td>
+                            {{vul.url}}
+                        </td>
+                        <td>
+                            {{vul.type}}
+                        </td>
+                    </tr>
+              {% endfor %}
+              {% else %}
+              <tr>
+                  <td>
+                    Угроз не обнаружено
+                  </td>
+                  <td>
+
+                  </td>
+              </tr>
+              {% endif %}
+
+          </table>
+      </div>
+    </div>
+
+    <script>
+        function show() {
+            var inputData = document.getElementById("text_input").value
+        
+        document.cookie = "last_site="+inputData
+         document.body.classList.add('loaded_hiding');
+         window.setTimeout(function () {
+           document.body.classList.add('loaded');
+           document.body.classList.remove('loaded_hiding');
+         }, 700);
+        
+       }
+     </script>
+  </body>
+</html>
