@@ -130,6 +130,15 @@
 
           </table>
       </div>
+      <div class="logs">
+<h2>Логи</h2>
+        {% if log %}
+        <pre>
+        {{log.text}}
+      </pre>
+        {% endif %}
+
+      </div>
     </div>
 
     <script>

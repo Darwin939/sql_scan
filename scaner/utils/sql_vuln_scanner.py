@@ -1,9 +1,10 @@
 import requests
-# import re # uncomment this for DVWA
+import re # uncomment this for DVWA
 from bs4 import BeautifulSoup as bs
 from urllib.parse import urljoin
 from pprint import pprint
 import re
+from contextlib import redirect_stdout
 
 s = requests.Session()
 s.headers["User-Agent"] = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.106 Safari/537.36"
@@ -13,16 +14,24 @@ login_payload = {
     "password": "password",
     "Login": "Login",
 }
-# change URL to the login page of your DVWA login URL
-login_url = "http://127.0.0.1/DVWA/login.php"
 
-# login
-r = s.get(login_url)
-token = re.search("user_token'\s*value='(.*?)'", r.text).group(1)
-login_payload['user_token'] = token
-s.post(login_url, data=login_payload)
+try:
+    # change URL to the login page of your DVWA login URL
+    login_url = "http://127.0.0.1/DVWA/login.php"
 
+    # login
+    r = s.get(login_url)
+    token = re.search("user_token'\s*value='(.*?)'", r.text).group(1)
+    login_payload['user_token'] = token
+    s.post(login_url, data=login_payload)
+except:
+    print("Cannot acces to the DVWA")
+    pass
 
+def write(text):
+    with open('./log.log', 'a+') as f:
+        with redirect_stdout(f):
+            print(text)
 
 def get_all_forms(url):
     """Given a `url`, it returns all forms from the HTML content"""
@@ -85,17 +94,26 @@ def scan_sql_injection(url):
     for c in "\"'":
   
         new_url = f"{url}{c}"
+        with open('./log.log', 'a+') as f:
+            with redirect_stdout(f):
+                print("[!] Trying", new_url)
         print("[!] Trying", new_url)
 
         res = s.get(new_url)
         if is_vulnerable(res):
-   
+            with open('./log.log', 'a+') as f:
+                with redirect_stdout(f):
+                    print("[+] SQL Injection vulnerability detected, link:", new_url)
             print("[+] SQL Injection vulnerability detected, link:", new_url)
             return (url,"url")
 
     # test on HTML forms
     forms = get_all_forms(url)
+    with open('./log.log', 'a+') as f:
+        with redirect_stdout(f):
+            print(f"[+] Detected {len(forms)} forms on {url}.")
     print(f"[+] Detected {len(forms)} forms on {url}.")
+    
     for form in forms:
         form_details = get_form_details(form)
  
@@ -122,11 +140,13 @@ def scan_sql_injection(url):
                 res = s.get(url, params=data)
 
             if is_vulnerable(res):
+                with open('./log.log', 'a+') as f:
+                    with redirect_stdout(f):
+                        print("[+] SQL Injection vulnerability detected, link:", url)
+                        print("[+] Form:")
+                        print(form_details)
                 print("[+] SQL Injection vulnerability detected, link:", url)
                 print("[+] Form:")
                 pprint(form_details)
                 return (url,"form")   
 
-if __name__ == "__main__":
-
-    scan_sql_injection('http://testphp.vulnweb.com/artists.php?artist')

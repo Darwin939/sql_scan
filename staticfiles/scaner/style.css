@@ -10,7 +10,6 @@ body {
     width: 1000px;
     height: 1000px;
     margin: auto;
-    border: 1px solid black;
     flex-direction: column;
 }
 
@@ -67,12 +66,27 @@ table {
     width: 100%;
   }
   
-  td, th {
+td, th {
     border: 1px solid #dddddd;
     text-align: left;
     padding: 8px;
   }
 
-  tr:nth-child(even) {
+tr:nth-child(even) {
     background-color: #dddddd;
+  }
+
+  .logs{
+      font-size: 12px;
+      text-indent: 0;
+      text-align: left;
+      margin-left: 80px;
+      margin-top: 70px;
+      overflow: scroll;
+  }
+
+  h2 {
+text-align: center;
+font-weight: normal;
+font-size: 22px;
   }

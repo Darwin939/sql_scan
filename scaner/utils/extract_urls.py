@@ -1,6 +1,7 @@
 import requests
 from urllib.parse import urlparse, urljoin
 from bs4 import BeautifulSoup
+from contextlib import redirect_stdout
 
 
 def is_valid(url):
@@ -73,6 +74,9 @@ def extract_urls(url):
     total_urls_visited = 0
     crawl(url)
     print("[+] Total Internal links:", len(internal_urls))
+    with open('./log.log', 'a+') as f:
+        with redirect_stdout(f):
+            print("[+] Total Internal links:", len(internal_urls))
     return internal_urls
 
 if __name__ == "__main__":

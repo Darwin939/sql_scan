@@ -1,11 +1,13 @@
 from django.http import HttpResponse
 from django.template import loader
 from django.shortcuts import redirect
-from .models import Website,Vulnerability
+from .models import Website,Vulnerability, Log
 from .utils.extract_urls import extract_urls
 from .utils.sql_vuln_scanner import scan_sql_injection
 from django.views.decorators.csrf import csrf_exempt
 from django.db.models import Max
+import sys
+import os
 
 
 
@@ -13,21 +15,16 @@ from django.db.models import Max
 
 def index(request):
     template = loader.get_template('scaner/index.html')
-    # max_id = Vulnerability.objects.aggregate(Max('site'))["site__max"]
-    # vulns = Vulnerability.objects.filter(site_id=max_id)
     cookie = request.COOKIES.get('last_site') 
     if cookie == None:
         vulns = None
-        print(cookie)
     else:
-        
         vulns = Vulnerability.objects.filter(site__url = cookie)
-        print(vulns)
-
+    last_log = Log.objects.order_by('-id')[0]
     context = {
         'vulns': vulns,
+        'log' : last_log
     }
-    
 
     return HttpResponse(template.render(context, request))
 
@@ -54,7 +51,18 @@ def make_analysis(request):
                     t = "SQL Injection vulnerability / URL vulnerability "
                     v = Vulnerability(url = i[0],type = t,site = w)
                     v.save()
-            print(result)
+            with open("./log.log","r") as data:
+                s = data.read()
+            l = Log(text = s)
+            l.save()
+            os.remove("./log.log")
             return redirect('index')
+            
         except:
+            with open("./log.log","r") as data:
+                s = data.read()
+            l = Log(text = s)
+            l.save()
+            os.remove("./log.log")
+           
             return redirect('index')
